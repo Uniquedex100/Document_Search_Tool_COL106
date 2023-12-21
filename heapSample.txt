@@ -1,0 +1,90 @@
+//minheap with unorddered map;
+int hasher(int a){return (a + 10000);}
+int dehash(int a){return (a - 10000);}
+class node{
+    public : 
+        int id;
+        int count;
+        node(){
+            id = -1;
+            count = -1;
+        }
+};
+class heap{
+    public : 
+        node data[100000];
+        int size = 0;
+        void hup(int index){
+            while(index > 0){
+                int pindex = (index - 1)/2;
+                if(data[pindex].count > data[index].count){
+                    node temp = data[pindex];data[pindex] = data[index];data[index] = temp;
+                    index = pindex;
+                }
+                else break;
+            }
+            // cout<<"current top is : "<<data[0].id<<endl;
+        }
+        void hdown(int index){
+            int smallest = index;
+            int lc = 2*index + 1;
+            int rc = 2*index + 2;
+            if(lc < size && data[smallest].count > data[lc].count){smallest = lc;}
+            if(rc < size && data[smallest].count > data[rc].count){smallest = rc;}
+            if(smallest != index){
+                node temp = data[smallest]; data[smallest] = data[index]; data[index] = temp;
+                hdown(smallest);
+            }
+        }
+        void insert(int idd,int ct,int k){
+            // cout<<"Inserting id : "<<idd<<" "<<ct<<endl;
+            if(size < k){
+                data[size].count = ct;
+                data[size].id = idd;
+                hup(size);
+                size++;
+            }
+            else{
+                if(data[0].count > ct){
+                    //do not insert
+                }
+                else {
+                    data[0].count = ct;
+                    data[0].id = idd;
+                    hdown(0);
+                }
+            }
+        }
+        node getmin(){
+            // cout<<"Returning result : "<<data[0].id<<" with count "<<data[0].count<<endl;
+            node result = data[0];
+            data[0] = data[size-1];
+            size--;
+            hdown(0);
+            return result;
+        }
+};
+class Solution {
+public:
+    vector<int> topKFrequent(vector<int>& nums, int k) {
+        vector<int> result;
+        int cap = 2*10000 + 1;
+        int data[cap];
+        for(int i = 0;i<cap;i++){
+            data[i] = 0;
+        }
+        for(int i = 0;i<nums.size();i++){
+            data[hasher(nums[i])]++;
+        }
+        heap myheap;
+        for(int i = 0;i<cap;i++){
+            if(data[i] != 0){
+                myheap.insert(dehash(i),data[i],k);
+            }
+        }
+        for(int i = 0;i<k;i++){
+            result.push_back(myheap.getmin().id);
+        }
+        return result;
+    }
+};
